@@ -1,8 +1,6 @@
 import os
 import io
-import json
 import yaml
-import boto3
 from flask import Flask, render_template, request, flash, redirect, url_for, session, send_file
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
@@ -11,6 +9,8 @@ from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from models import SavedAnalysis, db
+import asyncio
+from aijson import Flow
 
 load_dotenv()
 
@@ -28,34 +28,8 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def load_ai_config():
-    with open('chatbot.ai.yaml', 'r') as file:
+    with open('legal_case_analysis.ai.yaml', 'r') as file:
         return yaml.safe_load(file)
-
-def get_bedrock_runtime():
-    return boto3.client(
-        service_name='bedrock-runtime',
-        region_name=os.getenv('AWS_REGION_NAME'),
-        aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
-        aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
-    )
-
-def invoke_model(client, model_id, prompt):
-    body = json.dumps({
-        "prompt": prompt,
-        "temperature": 0.7,
-        "top_p": 1,
-        "max_gen_len": 2000
-    })
-    
-    response = client.invoke_model(
-        body=body,
-        modelId=model_id,
-        accept='application/json',
-        contentType='application/json'
-    )
-    
-    response_body = json.loads(response.get('body').read())
-    return response_body.get('generation').replace('*', '')
 
 def read_file_content(file):
     file_extension = os.path.splitext(file.filename)[1].lower()
@@ -71,20 +45,21 @@ def read_file_content(file):
         return '\n'.join([page.extract_text() for page in reader.pages])
     return "Unsupported file format"
 
+async def run_ai_flow(case_details, analysis_type):
+    # Load the flow from the YAML file
+    flow = Flow.from_file('legal_case_analysis.ai.yaml')
+    
+    # Set the variables in the flow
+    flow = flow.set_vars(case_details=case_details, analysis_type=analysis_type)
+    
+    # Run the flow and return the result
+    return await flow.run()
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     result = None
     if request.method == 'POST':
-        config = load_ai_config()
         analysis_type = request.form.get('analysis_type')
-        client = get_bedrock_runtime()
-        model_id = config['model']
-        
-        # Get prompts for the general_analysis method
-        method_prompts = config['methods']['general_analysis']['prompts']
-        system_prompt = next(prompt['content'] for prompt in method_prompts if prompt['role'] == 'system')
-        user_prompt = next(prompt['content'] for prompt in method_prompts if prompt['role'] == 'user')
-        
         case_details = request.form.get('case_details', '')
 
         # Process uploaded file if present
@@ -93,11 +68,6 @@ def index():
             if file and allowed_file(file.filename):
                 file_content = read_file_content(file)
                 case_details += f"\n\nUploaded File Content:\n{file_content}"
-                
-                file_type = file.filename.rsplit('.', 1)[1].lower()
-                file_type_prompt = config['file_type_prompts'].get(file_type, '')
-                if file_type_prompt:
-                    case_details = f"{file_type_prompt}\n\n{case_details}"
             else:
                 flash('Invalid file type. Please upload a txt, pdf, doc, or docx file.')
                 return render_template('index.html')
@@ -106,13 +76,14 @@ def index():
             flash('Please provide case details either by pasting text or uploading a file.')
             return render_template('index.html')
         
-        full_prompt = f"{system_prompt}\n\nHuman: {user_prompt.format(case_details=case_details, analysis_type=analysis_type)}\n\nAssistant:"
-        result = invoke_model(client, model_id, full_prompt)
+        # Run the AI flow asynchronously
+        result = asyncio.run(run_ai_flow(case_details, analysis_type))
         
         if result:
             recent_cases.appendleft({
                 'analysis_type': analysis_type,
-                'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                'result': result
             })
             session['last_result'] = result
     
