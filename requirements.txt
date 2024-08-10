@@ -1,0 +1,7 @@
+flask 
+python-dotenv
+pyyaml 
+boto3 
+werkzeug 
+python-docx 
+PyPDF2

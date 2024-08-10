@@ -59,12 +59,10 @@ def read_file_content(file_path):
         with open(file_path, 'r') as file:
             return file.read()
     elif file_extension.lower() in ['.doc', '.docx']:
-        # You'll need to install python-docx: pip install python-docx
         from docx import Document
         doc = Document(file_path)
         return '\n'.join([paragraph.text for paragraph in doc.paragraphs])
     elif file_extension.lower() == '.pdf':
-        # You'll need to install PyPDF2: pip install PyPDF2
         from PyPDF2 import PdfReader
         reader = PdfReader(file_path)
         return '\n'.join([page.extract_text() for page in reader.pages])
@@ -84,20 +82,31 @@ def index():
         system_prompt = next(prompt['content'] for prompt in config['prompts'] if prompt['role'] == 'system')
         user_prompt = next(prompt['content'] for prompt in config['prompts'] if prompt['role'] == 'user')
         
+        # Handle both pasted text and file upload
+        case_details = request.form.get('case_details', '')
+        
         if 'file' in request.files:
             file = request.files['file']
-            if file and allowed_file(file.filename):
+            if file and file.filename != '' and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(file_path)
                 
                 file_content = read_file_content(file_path)
-                case_details = file_content
-            else:
+                case_details += f"\n\nUploaded File Content:\n{file_content}"
+                
+                # Add file type acknowledgment
+                file_type = filename.rsplit('.', 1)[1].lower()
+                file_type_prompt = config['file_type_prompts'].get(file_type, '')
+                if file_type_prompt:
+                    case_details = f"{file_type_prompt}\n\n{case_details}"
+            elif file.filename != '':
                 flash('Invalid file type. Please upload a txt, pdf, doc, or docx file.')
                 return render_template('index.html')
-        else:
-            case_details = request.form['case_details']
+        
+        if not case_details.strip():
+            flash('Please provide case details either by pasting text or uploading a file.')
+            return render_template('index.html')
         
         full_prompt = f"{system_prompt}\n\nHuman: {user_prompt.format(case_details=case_details, analysis_type=analysis_type)}\n\nAssistant:"
         
