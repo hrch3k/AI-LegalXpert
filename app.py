@@ -79,8 +79,11 @@ def index():
         analysis_type = request.form.get('analysis_type')
         client = get_bedrock_runtime()
         model_id = config['model']
-        system_prompt = next(prompt['content'] for prompt in config['prompts'] if prompt['role'] == 'system')
-        user_prompt = next(prompt['content'] for prompt in config['prompts'] if prompt['role'] == 'user')
+        
+        # Get prompts for the general_analysis method
+        method_prompts = config['methods']['general_analysis']['prompts']
+        system_prompt = next(prompt['content'] for prompt in method_prompts if prompt['role'] == 'system')
+        user_prompt = next(prompt['content'] for prompt in method_prompts if prompt['role'] == 'user')
         
         case_details = request.form.get('case_details', '')
 
