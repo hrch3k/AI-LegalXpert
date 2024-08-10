@@ -1,0 +1,126 @@
+import os
+import io
+import yaml
+from flask import Flask, render_template, request, flash, redirect, url_for, session, send_file
+from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
+from collections import deque
+from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from models import SavedAnalysis, db
+import asyncio
+from aijson import Flow
+
+load_dotenv()
+
+app = Flask(__name__)
+app.secret_key = os.urandom(24)
+migrate = Migrate(app, db)
+app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///legal_xpert.db'
+
+db.init_app(app)
+recent_cases = deque(maxlen=5)
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'doc', 'docx'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def load_ai_config():
+    with open('legal_case_analysis.ai.yaml', 'r') as file:
+        return yaml.safe_load(file)
+
+def read_file_content(file):
+    file_extension = os.path.splitext(file.filename)[1].lower()
+    if file_extension == '.txt':
+        return file.read().decode('utf-8')
+    elif file_extension in ['.doc', '.docx']:
+        from docx import Document
+        doc = Document(io.BytesIO(file.read()))
+        return '\n'.join([para.text for para in doc.paragraphs])
+    elif file_extension == '.pdf':
+        from PyPDF2 import PdfReader
+        reader = PdfReader(io.BytesIO(file.read()))
+        return '\n'.join([page.extract_text() for page in reader.pages])
+    return "Unsupported file format"
+
+async def run_ai_flow(case_details, analysis_type):
+    # Load the flow from the YAML file
+    flow = Flow.from_file('legal_case_analysis.ai.yaml')
+    
+    # Set the variables in the flow
+    flow = flow.set_vars(case_details=case_details, analysis_type=analysis_type)
+    
+    # Run the flow and return the result
+    return await flow.run()
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    result = None
+    loop = asyncio.get_event_loop()  # Get the current event loop
+    if request.method == 'POST':
+        analysis_type = request.form.get('analysis_type')
+        case_details = request.form.get('case_details', '')
+
+        # Process uploaded file if present
+        if 'file' in request.files and request.files['file'].filename:
+            file = request.files['file']
+            if file and allowed_file(file.filename):
+                file_content = read_file_content(file)
+                case_details += f"\n\nUploaded File Content:\n{file_content}"
+            else:
+                flash('Invalid file type. Please upload a txt, pdf, doc, or docx file.')
+                return render_template('index.html')
+        
+        if not case_details.strip():
+            flash('Please provide case details either by pasting text or uploading a file.')
+            return render_template('index.html')
+        
+        # Run the AI flow asynchronously using the existing event loop
+        result = loop.run_until_complete(run_ai_flow(case_details, analysis_type))
+        
+        if result:
+            recent_cases.appendleft({
+                'analysis_type': analysis_type,
+                'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                'result': result
+            })
+            session['last_result'] = result
+    
+    saved_analyses = SavedAnalysis.query.order_by(SavedAnalysis.timestamp.desc()).limit(5).all()
+    return render_template('index.html', result=result, recent_cases=list(recent_cases), saved_analyses=saved_analyses)
+
+@app.route('/save_analysis', methods=['POST'])
+def save_analysis():
+    title = request.form.get('title', 'Untitled Analysis')
+    content = session.get('last_result', 'No content available')
+    new_analysis = SavedAnalysis(title=title, content=content)
+    db.session.add(new_analysis)
+    db.session.commit()
+    flash('Analysis saved successfully!')
+    return redirect(url_for('index'))
+
+@app.route('/view_analysis/<int:id>')
+def view_analysis(id):
+    analysis = SavedAnalysis.query.get_or_404(id)
+    return render_template('view_analysis.html', analysis=analysis)
+
+@app.route('/export_result')
+def export_result():
+    result_text = session.get('last_result', 'No result available')
+    buffer = io.StringIO()
+    buffer.write(result_text)
+    buffer.seek(0)
+    return send_file(
+        io.BytesIO(buffer.getvalue().encode()),
+        mimetype='text/plain',
+        as_attachment=True,
+        download_name='legal_analysis_result.txt'
+    )
+
+if __name__ == '__main__':
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True)
