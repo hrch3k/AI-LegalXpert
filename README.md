@@ -14,19 +14,20 @@ AI LegalXpert offers the following features:
 ## Installation / Setup
 
 Follow these steps to set up and run AI LegalXpert on your machine:
-
 1. **Clone the repository:**
 
    ```bash
    git clone https://github.com/yourusername/ai-legalxpert.git
    cd ai-legalxpert
-  
+   ```
+
 2. **Install dependencies:**
 
   Make sure you have Python 3.10 installed, then install the required Python packages:
 
    ```bash
    pip install -r requirements.txt
+   ```
 
 3. **Set up environment variables:**
 
@@ -36,7 +37,8 @@ Follow these steps to set up and run AI LegalXpert on your machine:
    AWS_REGION_NAME=your_aws_region
    AWS_ACCESS_KEY_ID=your_access_key_id
    AWS_SECRET_ACCESS_KEY=your_secret_access_key
-  
+  ```
+
 
 4. **Run the application:**
 
@@ -44,6 +46,7 @@ Follow these steps to set up and run AI LegalXpert on your machine:
 
    ```bash
    python app.py
+```
 
 
 ## Example Usage
