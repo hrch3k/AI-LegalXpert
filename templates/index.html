@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -23,12 +24,14 @@
         }
     </script>
 </head>
+
 <body class="font-inter bg-gradient-to-b from-[#00121e] to-[#bef5fa] min-h-screen flex flex-col justify-between">
     <div class="container mx-auto px-6 py-10 flex-grow">
         <header class="text-center mb-16">
             <h1 class="text-6xl font-bold mb-6">
-                <span class="text-white">X</span>
+                <span class="text-white">AI</span>
                 <span class="text-darkturquoise">Legal</span>
+                <span class="text-white">X</span>
                 <span class="text-paleturquoise">pert</span>
             </h1>
             <p class="text-2xl text-white">Your AI companion for legal expertise</p>
@@ -37,18 +40,19 @@
         <main>
             <form action="/" method="post" enctype="multipart/form-data" class="bg-white rounded-lg shadow-2xl p-8">
                 {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
-                            {% for message in messages %}
-                                <p>{{ message }}</p>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
+                {% if messages %}
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
+                    {% for message in messages %}
+                    <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
                 {% endwith %}
 
                 <div class="mb-6">
                     <label for="analysis_type" class="block text-gray-700 text-sm font-bold mb-2">Analysis Type:</label>
-                    <select name="analysis_type" id="analysis_type" class="shadow-sm border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-darkturquoise">
+                    <select name="analysis_type" id="analysis_type"
+                        class="shadow-sm border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-darkturquoise">
                         <option value="case_analysis">Case Analysis</option>
                         <option value="precedent_research">Precedent Research</option>
                         <option value="risk_assessment">Risk Assessment</option>
@@ -58,67 +62,76 @@
 
                 <div class="mb-6">
                     <label for="case_details" class="block text-gray-700 text-sm font-bold mb-2">Case Details:</label>
-                    <textarea name="case_details" id="case_details" rows="5" class="shadow-sm border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-darkturquoise" placeholder="Enter case details here..."></textarea>
+                    <textarea name="case_details" id="case_details" rows="5"
+                        class="shadow-sm border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-darkturquoise"
+                        placeholder="Enter case details here..."></textarea>
                 </div>
 
                 <div class="mb-6">
                     <label for="file" class="block text-gray-700 text-sm font-bold mb-2">Upload File (optional):</label>
-                    <input type="file" name="file" id="file" class="shadow-sm border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-darkturquoise">
+                    <input type="file" name="file" id="file"
+                        class="shadow-sm border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-darkturquoise">
                     <p class="text-sm text-gray-500 mt-2">Allowed file types: txt, pdf, doc, docx</p>
                 </div>
 
                 <div class="flex items-center justify-between">
-                    <button type="submit" class="bg-darkturquoise hover:bg-[#00a7b3] text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring focus:ring-darkturquoise">
+                    <button type="submit"
+                        class="bg-darkturquoise hover:bg-[#00a7b3] text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring focus:ring-darkturquoise">
                         Analyze
                     </button>
                 </div>
             </form>
 
             {% if result %}
-                <div class="bg-white rounded-lg shadow-2xl p-8 mt-8">
-                    <h2 class="text-2xl font-bold text-teal mb-6">Analysis Result:</h2>
-                    <div class="whitespace-pre-wrap text-gray-800">{{ result }}</div>
-                    
-                    <form action="{{ url_for('save_analysis') }}" method="post" class="mt-6">
-                        <label for="title" class="block text-gray-700 text-sm font-bold mb-2">Title for Saving:</label>
-                        <input type="text" name="title" id="title" class="shadow-sm border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-darkturquoise" placeholder="Enter a title for this analysis">
-                        <button type="submit" class="bg-darkturquoise hover:bg-[#00a7b3] text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring focus:ring-darkturquoise mt-6">
-                            Save Analysis
-                        </button>
-                    </form>
+            <div class="bg-white rounded-lg shadow-2xl p-8 mt-8">
+                <h2 class="text-2xl font-bold text-teal mb-6">Analysis Result:</h2>
+                <div class="whitespace-pre-wrap text-gray-800">{{ result }}</div>
 
-                    <a href="{{ url_for('export_result') }}" class="inline-block bg-paleturquoise hover:bg-[#9fdedc] text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring focus:ring-paleturquoise mt-6">
-                        Export Result
-                    </a>
-                </div>
+                <form action="{{ url_for('save_analysis') }}" method="post" class="mt-6">
+                    <label for="title" class="block text-gray-700 text-sm font-bold mb-2">Title for Saving:</label>
+                    <input type="text" name="title" id="title"
+                        class="shadow-sm border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-darkturquoise"
+                        placeholder="Enter a title for this analysis">
+                    <button type="submit"
+                        class="bg-darkturquoise hover:bg-[#00a7b3] text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring focus:ring-darkturquoise mt-6">
+                        Save Analysis
+                    </button>
+                </form>
+
+                <a href="{{ url_for('export_result') }}"
+                    class="inline-block bg-paleturquoise hover:bg-[#9fdedc] text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring focus:ring-paleturquoise mt-6">
+                    Export Result
+                </a>
+            </div>
             {% endif %}
 
             {% if recent_cases %}
-                <div class="bg-white rounded-lg shadow-2xl p-8 mt-8">
-                    <h2 class="text-2xl font-bold text-teal mb-6">Recent Cases</h2>
-                    <ul class="divide-y divide-gray-300">
-                        {% for case in recent_cases %}
-                            <li class="py-4">
-                                <p class="text-sm font-medium text-gray-900">{{ case.analysis_type }}</p>
-                                <p class="text-sm text-gray-500">{{ case.timestamp }}</p>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
+            <div class="bg-white rounded-lg shadow-2xl p-8 mt-8">
+                <h2 class="text-2xl font-bold text-teal mb-6">Recent Cases</h2>
+                <ul class="divide-y divide-gray-300">
+                    {% for case in recent_cases %}
+                    <li class="py-4">
+                        <p class="text-sm font-medium text-gray-900">{{ case.analysis_type }}</p>
+                        <p class="text-sm text-gray-500">{{ case.timestamp }}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
             {% endif %}
 
             {% if saved_analyses %}
-                <div class="bg-white rounded-lg shadow-2xl p-8 mt-8">
-                    <h2 class="text-2xl font-bold text-teal mb-6">Saved Analyses</h2>
-                    <ul class="divide-y divide-gray-300">
-                        {% for analysis in saved_analyses %}
-                            <li class="py-4">
-                                <a href="{{ url_for('view_analysis', id=analysis.id) }}" class="text-blue-500 hover:underline">{{ analysis.title }}</a>
-                                <p class="text-sm text-gray-500">{{ analysis.timestamp }}</p>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
+            <div class="bg-white rounded-lg shadow-2xl p-8 mt-8">
+                <h2 class="text-2xl font-bold text-teal mb-6">Saved Analyses</h2>
+                <ul class="divide-y divide-gray-300">
+                    {% for analysis in saved_analyses %}
+                    <li class="py-4">
+                        <a href="{{ url_for('view_analysis', id=analysis.id) }}"
+                            class="text-blue-500 hover:underline">{{ analysis.title }}</a>
+                        <p class="text-sm text-gray-500">{{ analysis.timestamp }}</p>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
             {% endif %}
         </main>
     </div>
@@ -127,4 +140,5 @@
         <p>&copy; 2024 Legal Xpert. All rights reserved.</p>
     </footer>
 </body>
+
 </html>
