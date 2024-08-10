@@ -17,7 +17,7 @@ Follow these steps to set up and run AI LegalXpert on your machine:
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/yourusername/ai-legalxpert.git
+   git clone https://github.com/hrch3k/ai-legalxpert.git
    cd ai-legalxpert
    ```
 
