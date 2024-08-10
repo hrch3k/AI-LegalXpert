@@ -5,6 +5,7 @@ boto3
 werkzeug 
 python-docx 
 PyPDF2
-collection
+collections
 flask-migrate 
 aijson-meta 
+werkzeug
