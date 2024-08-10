@@ -1,24 +1,22 @@
 # AI-LegalXpert
-AI LegalXpert is a sophisticated GenAI-powered legal assistant designed to assist customers by providing comprehensive legal analysis, suggestions, and strategies.
 
-dummy_repo
-An example of what your repo should look like
+AI LegalXpert is a sophisticated AI-powered legal assistant designed to assist users by providing comprehensive legal analysis, suggestions, and strategies. The application leverages the latest in natural language processing to analyze legal documents and provide actionable insights.
 
-Introduction
-These are the features:
+## Features
 
-  1. does stuff
-  2. helps with things
-  3. makes whatchamacallits
+AI LegalXpert offers the following features:
 
+1. **Document Analysis**: Upload legal documents in PDF, DOC, DOCX, or TXT formats, and receive a comprehensive analysis.
+2. **Legal Strategy Suggestions**: Get recommendations for legal strategies based on the case details.
+3. **Multi-Format Support**: Supports various document formats including PDF, DOC, DOCX, and TXT.
+4. **Result Export**: Save or export the analysis results for later review.
 
-Installation / Set Up
-This is how you can get this running on your own machine
+## Installation / Setup
 
-  1. Pull repo
-  2. Install depedencies
-  3. Add data.file
-  4. Run the run.py file
+Follow these steps to set up and run AI LegalXpert on your machine:
 
-Example usage
-Here are screenshots/gifs/printouts of what the outputs should look like and how this should run.
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/yourusername/ai-legalxpert.git
+   cd ai-legalxpert
