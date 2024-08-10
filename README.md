@@ -1,6 +1,6 @@
 # AI-LegalXpert
 
-AI LegalXpert is a sophisticated AI-powered legal assistant designed to assist users by providing comprehensive legal analysis, suggestions, and strategies. The application leverages the latest in natural language processing to analyze legal documents and provide actionable insights.
+AI LegalXpert based on [AI JSON](https://aijson.com/) is a sophisticated AI-powered legal assistant designed to assist users by providing comprehensive legal analysis, suggestions, and strategies. The application leverages the latest in natural language processing to analyze legal documents and provide actionable insights.
 
 ## Features
 
