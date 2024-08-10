@@ -1,19 +1,28 @@
-from flask import Flask, render_template, request, flash
 import os
-from dotenv import load_dotenv
+import io
+import json
 import yaml
 import boto3
-import json
+from flask import Flask, render_template, request, flash, redirect, url_for, session, send_file
 from werkzeug.utils import secure_filename
+from dotenv import load_dotenv
+from collections import deque
+from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from models import SavedAnalysis, db
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
-UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'doc', 'docx'}
+migrate = Migrate(app, db)
+app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///legal_xpert.db'
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+db.init_app(app)
+recent_cases = deque(maxlen=5)
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'doc', 'docx'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -46,61 +55,47 @@ def invoke_model(client, model_id, prompt):
     )
     
     response_body = json.loads(response.get('body').read())
-    ai_response = response_body.get('generation')
-    
-    cleaned_response = ai_response.replace('*', '')
-    
-    return cleaned_response
+    return response_body.get('generation').replace('*', '')
 
-def read_file_content(file_path):
-    _, file_extension = os.path.splitext(file_path)
-    
-    if file_extension.lower() == '.txt':
-        with open(file_path, 'r') as file:
-            return file.read()
-    elif file_extension.lower() in ['.doc', '.docx']:
+def read_file_content(file):
+    file_extension = os.path.splitext(file.filename)[1].lower()
+    if file_extension == '.txt':
+        return file.read().decode('utf-8')
+    elif file_extension in ['.doc', '.docx']:
         from docx import Document
-        doc = Document(file_path)
-        return '\n'.join([paragraph.text for paragraph in doc.paragraphs])
-    elif file_extension.lower() == '.pdf':
+        doc = Document(io.BytesIO(file.read()))
+        return '\n'.join([para.text for para in doc.paragraphs])
+    elif file_extension == '.pdf':
         from PyPDF2 import PdfReader
-        reader = PdfReader(file_path)
+        reader = PdfReader(io.BytesIO(file.read()))
         return '\n'.join([page.extract_text() for page in reader.pages])
-    else:
-        return "Unsupported file format"
+    return "Unsupported file format"
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     result = None
     if request.method == 'POST':
         config = load_ai_config()
-        analysis_type = request.form['analysis_type']
-        
+        analysis_type = request.form.get('analysis_type')
         client = get_bedrock_runtime()
         model_id = config['model']
-        
         system_prompt = next(prompt['content'] for prompt in config['prompts'] if prompt['role'] == 'system')
         user_prompt = next(prompt['content'] for prompt in config['prompts'] if prompt['role'] == 'user')
         
-        # Handle both pasted text and file upload
         case_details = request.form.get('case_details', '')
-        
-        if 'file' in request.files:
+
+        # Process uploaded file if present
+        if 'file' in request.files and request.files['file'].filename:
             file = request.files['file']
-            if file and file.filename != '' and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(file_path)
-                
-                file_content = read_file_content(file_path)
+            if file and allowed_file(file.filename):
+                file_content = read_file_content(file)
                 case_details += f"\n\nUploaded File Content:\n{file_content}"
                 
-                # Add file type acknowledgment
-                file_type = filename.rsplit('.', 1)[1].lower()
+                file_type = file.filename.rsplit('.', 1)[1].lower()
                 file_type_prompt = config['file_type_prompts'].get(file_type, '')
                 if file_type_prompt:
                     case_details = f"{file_type_prompt}\n\n{case_details}"
-            elif file.filename != '':
+            else:
                 flash('Invalid file type. Please upload a txt, pdf, doc, or docx file.')
                 return render_template('index.html')
         
@@ -109,11 +104,48 @@ def index():
             return render_template('index.html')
         
         full_prompt = f"{system_prompt}\n\nHuman: {user_prompt.format(case_details=case_details, analysis_type=analysis_type)}\n\nAssistant:"
-        
         result = invoke_model(client, model_id, full_prompt)
+        
+        if result:
+            recent_cases.appendleft({
+                'analysis_type': analysis_type,
+                'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            })
+            session['last_result'] = result
     
-    return render_template('index.html', result=result)
+    saved_analyses = SavedAnalysis.query.order_by(SavedAnalysis.timestamp.desc()).limit(5).all()
+    return render_template('index.html', result=result, recent_cases=list(recent_cases), saved_analyses=saved_analyses)
+
+@app.route('/save_analysis', methods=['POST'])
+def save_analysis():
+    title = request.form.get('title', 'Untitled Analysis')
+    content = session.get('last_result', 'No content available')
+    new_analysis = SavedAnalysis(title=title, content=content)
+    db.session.add(new_analysis)
+    db.session.commit()
+    flash('Analysis saved successfully!')
+    return redirect(url_for('index'))
+
+@app.route('/view_analysis/<int:id>')
+def view_analysis(id):
+    analysis = SavedAnalysis.query.get_or_404(id)
+    return render_template('view_analysis.html', analysis=analysis)
+
+@app.route('/export_result')
+def export_result():
+    result_text = session.get('last_result', 'No result available')
+    buffer = io.StringIO()
+    buffer.write(result_text)
+    buffer.seek(0)
+    return send_file(
+        io.BytesIO(buffer.getvalue().encode()),
+        mimetype='text/plain',
+        as_attachment=True,
+        download_name='legal_analysis_result.txt'
+    )
 
 if __name__ == '__main__':
-    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)
