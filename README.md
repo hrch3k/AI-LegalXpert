@@ -8,8 +8,7 @@ AI LegalXpert offers the following features:
 
 1. **Document Analysis**: Upload legal documents in PDF, DOC, DOCX, or TXT formats, and receive a comprehensive analysis.
 2. **Legal Strategy Suggestions**: Get recommendations for legal strategies based on the case details.
-3. **Multi-Format Support**: Supports various document formats including PDF, DOC, DOCX, and TXT.
-4. **Result Export**: Save or export the analysis results for later review.
+3. **Result Export**: Save or export the analysis results for later review.
 
 ## Installation / Setup
 
