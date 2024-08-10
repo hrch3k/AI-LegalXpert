@@ -11,6 +11,10 @@ from flask_migrate import Migrate
 from models import SavedAnalysis, db
 import asyncio
 from aijson import Flow
+import nest_asyncio
+
+# Apply nest_asyncio to allow reuse of the existing event loop
+nest_asyncio.apply()
 
 load_dotenv()
 
@@ -76,8 +80,9 @@ def index():
             flash('Please provide case details either by pasting text or uploading a file.')
             return render_template('index.html')
         
-        # Run the AI flow asynchronously
-        result = asyncio.run(run_ai_flow(case_details, analysis_type))
+        # Run the AI flow asynchronously using the existing event loop
+        loop = asyncio.get_event_loop()
+        result = loop.run_until_complete(run_ai_flow(case_details, analysis_type))
         
         if result:
             recent_cases.appendleft({
