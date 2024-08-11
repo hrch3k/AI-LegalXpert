@@ -19,7 +19,6 @@ import nest_asyncio
 import re
 from typing import List, Tuple
 
-# Apply nest_asyncio to allow reuse of the existing event loop
 nest_asyncio.apply()
 
 load_dotenv()
@@ -71,65 +70,36 @@ def calculate_case_metrics():
         "success_rate": success_rate
     }
 
-
 def clean_ai_response(response: str) -> str:
-    # Remove any existing HTML tags
     cleaned_response = BeautifulSoup(response, "html.parser").get_text()
-
-    # Remove excess whitespace
     cleaned_response = re.sub(r'\s+', ' ', cleaned_response).strip()
-
-    # Replace repeated punctuation with a single instance
     cleaned_response = re.sub(r'([.!?]){2,}', r'\1', cleaned_response)
-
-    # Ensure proper spacing after punctuation
     cleaned_response = re.sub(r'(?<=[.,!?])(?=[^\s])', r' ', cleaned_response)
-
-    # Capitalize the first letter of the response
     if cleaned_response:
         cleaned_response = cleaned_response[0].upper() + cleaned_response[1:]
-
     return cleaned_response
 
 def format_ai_response(response: str) -> str:
     cleaned_response = clean_ai_response(response)
-    
-    
     paragraphs = re.split(r'\n+', cleaned_response)
-    
-    
     formatted_paragraphs = [format_paragraph(p) for p in paragraphs]
-    
-    
     return '\n\n'.join(formatted_paragraphs)
 
 def format_paragraph(paragraph: str) -> str:
-    
     paragraph = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', paragraph)
-    
-    
     paragraph = re.sub(r'\*(.*?)\*', r'<em>\1</em>', paragraph)
-
-    
     key_phrases = [
         (r'\b(Note|Important|Tip):', r'<strong>\1:</strong>'),
         (r'\b(e\.g\.|i\.e\.):', r'<em>\1</em>'),
     ]
     for pattern, replacement in key_phrases:
         paragraph = re.sub(pattern, replacement, paragraph)
-    
-    
     paragraph = re.sub(r'\b([A-Z][a-z]+(?:[A-Z][a-z]+)+)\b', r'<code>\1</code>', paragraph)
-    
     return f'<p>{paragraph}</p>'
 
 def structure_response(response: str) -> str:
     formatted_response = format_ai_response(response)
-    
-    
     separator = '<hr style="border: 1px solid #ccc; margin: 20px 0;">'
-    
-    
     styled_response = f'''
     <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         {formatted_response}
@@ -156,11 +126,8 @@ async def run_ai_flow(case_details, analysis_type):
         else:
             analysis_result = str(result)
         
-        
         cleaned_result = clean_ai_response(analysis_result)
         return {"analysis_result": cleaned_result}
-        
-        
     
     except RuntimeError as e:
         error_message = "The AI model encountered an issue while processing your request. Please try again with different input or contact support."
@@ -211,8 +178,6 @@ def dashboard():
     metrics = calculate_case_metrics()
     return render_template('view_analysis.html', metrics=metrics)
 
-
-
 @app.route('/', methods=['GET', 'POST'])
 async def index():
     result = None
@@ -222,7 +187,6 @@ async def index():
             analysis_type = request.form.get('analysis_type')
             case_details = request.form.get('case_details', '')
 
-            # Process uploaded file if present
             if 'file' in request.files and request.files['file'].filename:
                 file = request.files['file']
                 if file and allowed_file(file.filename):
@@ -236,13 +200,12 @@ async def index():
                 flash('Please provide case details either by pasting text or uploading a document.')
                 return render_template('index.html')
             
-            # Run the AI flow asynchronously using the await keyword
             ai_result = await run_ai_flow(case_details, analysis_type)
             
             if 'analysis_result' in ai_result:
                 result = ai_result['analysis_result']
-                session['last_result'] = result  # Store the cleaned, but unformatted result
-                result = structure_response(result)  # Format for display
+                session['last_result'] = result
+                result = structure_response(result)
                 if not result.startswith("Error:"):
                     logger.info(f"Analysis result: {result}")
                     recent_cases.appendleft({
@@ -289,7 +252,6 @@ def view_reminders():
     reminders = Reminder.query.order_by(Reminder.due_date).all()
     return render_template('reminders.html', reminders=reminders)
 
-
 @app.route('/save_analysis', methods=['POST'])
 def save_analysis():
     title = request.form.get('title', 'Untitled Analysis')
@@ -335,7 +297,7 @@ def generate_document(analysis_id):
             <p>Sincerely,</p>
             <p>Legal Xpert</p>
             """
-        else:  # memo
+        else:
             template = """
             <h1>Legal Memorandum</h1>
             <p>To: {{ client_name }}</p>
@@ -363,7 +325,6 @@ def export_result():
         as_attachment=True,
         download_name='legal_analysis_result.html'
     )
-    
     
 @app.route('/search', methods=['GET', 'POST'])
 def search():
