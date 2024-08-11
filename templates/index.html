@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Legal Xpert</title>
     <script src="https://cdn.tailwindcss.com"></script>
+     <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
@@ -23,25 +25,40 @@
             },
         }
     </script>
+    <style>
+        .loader {
+            border-top-color: #00CED1;
+            -webkit-animation: spinner 1.5s linear infinite;
+            animation: spinner 1.5s linear infinite;
+        }
+        @-webkit-keyframes spinner {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+        @keyframes spinner {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 
-<body class="font-inter bg-gradient-to-b from-[#00121e] to-[#bef5fa] min-h-screen flex flex-col justify-between">
+<body class="font-inter bg-gradient-to-b from-[#00121e] to-[#bef5fa] min-h-screen flex flex-col justify-between"  x-data="{ loading: false }">
+    <div id="spinner" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50" x-show="loading">
+        <div class="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
+    </div>
     <div class="container mx-auto px-6 py-10 flex-grow">
         <header class="text-center mb-16 flex flex-col items-center">
             <img src="{{ url_for('static', filename='legal.jpg') }}" alt="icon"
-                class="rounded-full w-16 h-16 mb-6 object-contain">
-
+                class="rounded-full w-32 h-32 mb-6 object-contain">
             <h1 class="text-6xl font-bold mb-6">
-
                 <span class="text-darkturquoise">Legal</span><span class="text-white">X</span><span
                     class="text-paleturquoise">pert</span>
             </h1>
             <p class="text-2xl text-white">Your AI companion for legal expertise</p>
         </header>
 
-
         <main>
-            <form action="/" method="post" enctype="multipart/form-data" class="bg-white rounded-lg shadow-2xl p-8">
+           <form action="{{ url_for('index') }}" method="post" enctype="multipart/form-data" @submit="loading = true">
                 {% with messages = get_flashed_messages() %}
                 {% if messages %}
                 <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6" role="alert">
@@ -78,36 +95,32 @@
                 </div>
 
                 <div class="flex items-center justify-between">
-                    <button type="submit"
-                        class="bg-darkturquoise hover:bg-[#00a7b3] text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring focus:ring-darkturquoise">
-                        Analyze
-                    </button>
+                    <button type="submit" class="bg-darkturquoise hover:bg-[#00a7b3] text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring focus:ring-paleturquoise">
+                    Analyze
+                </button>
                 </div>
             </form>
 
+
             {% if result %}
-            <div class="bg-white rounded-lg shadow-2xl p-8 mt-8">
-                <h2 class="text-2xl font-bold text-teal mb-6">Analysis Result:</h2>
-                <div class="whitespace-pre-wrap text-gray-800">{{ result }}</div>
-
-                <form action="{{ url_for('save_analysis') }}" method="post" class="mt-6">
-                    <label for="title" class="block text-gray-700 text-sm font-bold mb-2">Title for Saving:</label>
-                    <input type="text" name="title" id="title"
-                        class="shadow-sm border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-darkturquoise"
-                        placeholder="Enter a title for this analysis">
-                    <button type="submit"
-                        class="bg-darkturquoise hover:bg-[#00a7b3] text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring focus:ring-darkturquoise mt-6">
-                        Save Analysis
-                    </button>
-                </form>
-
-                <a href="{{ url_for('export_result') }}"
-                    class="inline-block bg-paleturquoise hover:bg-[#9fdedc] text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring focus:ring-paleturquoise mt-6">
-                    Export Result
-                </a>
+            <div class="bg-white rounded-lg shadow-lg p-8 mt-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Analysis Result</h2>
+                <div class="bg-gray-100 rounded-lg p-6 mb-6">
+                    <pre class="whitespace-pre-wrap text-gray-700 font-mono text-sm">{{ result }}</pre>
+                </div>
+                <div class="flex flex-col space-y-4">
+                    <form action="{{ url_for('save_analysis') }}" method="post" class="flex items-center space-x-4">
+                        <input type="text" name="title" placeholder="Title for Saving" class="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out">
+                            Save Analysis
+                        </button>
+                    </form>
+                    <a href="{{ url_for('export_result') }}" class="inline-block bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out text-center">
+                        Export Result
+                    </a>
+                </div>
             </div>
             {% endif %}
-
             {% if recent_cases %}
             <div class="bg-white rounded-lg shadow-2xl p-8 mt-8">
                 <h2 class="text-2xl font-bold text-teal mb-6">Recent Cases</h2>
@@ -129,7 +142,7 @@
                     {% for analysis in saved_analyses %}
                     <li class="py-4">
                         <a href="{{ url_for('view_analysis', id=analysis.id) }}"
-                            class="text-blue-500 hover:underline">{{ analysis.title }}</a>
+                            class="text-sm font-medium text-darkturquoise hover:text-[#00a7b3]">{{ analysis.title }}</a>
                         <p class="text-sm text-gray-500">{{ analysis.timestamp }}</p>
                     </li>
                     {% endfor %}
@@ -139,9 +152,20 @@
         </main>
     </div>
 
-    <footer class="text-center py-6 text-white">
-        <p>&copy; 2024 Legal Xpert. All rights reserved.</p>
+    <footer class="bg-[#00121e] text-white py-6 text-center">
+        <p>&copy; 2024 LegalXpert. All Rights Reserved.</p>
     </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.querySelector("form");
+            const spinner = document.getElementById("spinner");
+
+            form.addEventListener("submit", function () {
+                spinner.classList.remove("hidden");
+            });
+        });
+    </script>
 </body>
 
 </html>

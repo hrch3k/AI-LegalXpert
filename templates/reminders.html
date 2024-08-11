@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Xpert - Reminders</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+    <header class="bg-blue-900 text-white p-4">
+        <div class="container mx-auto">
+            <h1 class="text-4xl font-bold">
+                <span class="text-blue-300">Legal</span><span class="text-white">X</span><span class="text-blue-200">pert</span>
+            </h1>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 flex-grow">
+        <h2 class="text-2xl font-bold mb-4">Reminders</h2>
+
+        {% if reminders %}
+            <ul class="space-y-4">
+            {% for reminder in reminders %}
+                <li class="bg-white p-4 rounded shadow">
+                    <h3 class="text-xl font-semibold">{{ reminder.title }}</h3>
+                    <p class="text-gray-600">Due: {{ reminder.due_date.strftime('%Y-%m-%d') }}</p>
+                    <p>{{ reminder.description }}</p>
+                    <a href="{{ url_for('view_analysis', id=reminder.analysis_id) }}" class="text-blue-500 hover:underline">View Related Analysis</a>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No reminders found.</p>
+        {% endif %}
+    </main>
+
+    <footer class="bg-blue-900 text-white py-4 mt-8">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2024 Legal Xpert. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
