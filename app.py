@@ -18,6 +18,7 @@ from aijson import Flow
 import nest_asyncio
 import re
 from typing import List, Tuple
+from PIL import Image
 
 nest_asyncio.apply()
 
@@ -141,6 +142,76 @@ async def run_ai_flow(case_details, analysis_type):
         logger.error(traceback.format_exc())
         return {"analysis_result": f"Error in AI analysis: {str(e)}"}
     
+    
+async def analyze_image(image_file):
+    try:
+        
+        flow = Flow.from_file('image_analysis.ai.yaml')
+        flow = flow.set_vars(image_file=image_file)
+        result = await flow.run()
+        logger.info(f"AI flow raw result: {result}")
+        
+        if isinstance(result, dict):
+            if 'analysis_result' in result:
+                analysis_result = result['analysis_result']
+            else:
+                analysis_result = str(result)
+        else:
+            analysis_result = str(result)
+        
+        cleaned_result = clean_ai_response(analysis_result)
+        return {"analysis_result": cleaned_result}
+    
+    except RuntimeError as e:
+        error_message = "The AI model encountered an issue while processing your request. Please try again with different input or contact support."
+        if str(e) == "Failed to render result":
+            logger.error("Failed to render result from AI flow. This may be due to an issue with the AI model or the input data.")
+        else:
+            logger.error(f"Unexpected RuntimeError in AI flow: {str(e)}")
+        return {"analysis_result": error_message}
+    except Exception as e:
+        logger.error(f"Error running AI flow: {str(e)}")
+        logger.error(traceback.format_exc())
+        return {"analysis_result": f"Error in AI analysis: {str(e)}"}
+
+
+
+
+
+@app.route('/analyze_image', methods=['POST'])
+def analyze_image():
+    if 'image' not in request.files:
+        flash('No image file provided.')
+        return redirect(url_for('index'))
+
+    file = request.files['image']
+    if file.filename == '':
+        flash('No selected file.')
+        return redirect(url_for('index'))
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+
+        try:
+            with Image.open(file_path) as img:
+                # Perform AI analysis on the image
+                analysis_result = analyze_image(img)
+                
+                # Clean and format the AI response
+                cleaned_result = clean_ai_response(analysis_result)
+                formatted_result = structure_response(cleaned_result)
+                
+                return render_template('image_analysis_result.html', result=formatted_result)
+        except Exception as e:
+            flash(f'An error occurred while analyzing the image: {str(e)}')
+            return redirect(url_for('index'))
+    else:
+        flash('Invalid file type. Please upload an image file.')
+        return redirect(url_for('index'))
+
+
 from xhtml2pdf import pisa
 @app.route('/generate_report', methods=['POST'])
 def generate_report():
@@ -149,7 +220,7 @@ def generate_report():
     summary = request.form.get('summary')
     details = request.form.get('details')
 
-    # Render HTML content from template
+    
     html_content = render_template(
         'report_template.html',
         report_title=report_title,
@@ -159,17 +230,17 @@ def generate_report():
         details=details
     )
 
-    # Convert HTML to PDF
+    
     pdf = io.BytesIO()
     pisa_status = pisa.CreatePDF(io.StringIO(html_content), dest=pdf)
 
     if pisa_status.err:
-        # Handle error (optional)
+        
         return "Error generating PDF", 500
 
-    pdf.seek(0)  # Reset file pointer to the beginning
+    pdf.seek(0) 
 
-    # Send PDF as attachment
+    
     return send_file(
         pdf,
         mimetype='application/pdf',
