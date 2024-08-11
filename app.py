@@ -103,7 +103,7 @@ def index():
                 return render_template('index.html')
         
         if not case_details.strip():
-            flash('Please provide case details either by pasting text or uploading a file.')
+            flash('Please provide case details either by pasting text or uploading a document.')
             return render_template('index.html')
         
         full_prompt = f"{system_prompt}\n\nHuman: {user_prompt.format(case_details=case_details, analysis_type=analysis_type)}\n\nAssistant:"
