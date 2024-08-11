@@ -75,7 +75,7 @@ Here are some examples of how AI LegalXpert works:
 
 - **image forensycs:**
 
-  ![Screenshot of the Application](imagescrnshoot.jpg)
+  ![Screenshot of the Application](imagereport.jpg)
 
 ## Contributing
 
