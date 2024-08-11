@@ -79,23 +79,23 @@ def clean_ai_response(response: str) -> str:
 def format_ai_response(response: str) -> str:
     cleaned_response = clean_ai_response(response)
     
-    # Split response into paragraphs
+    
     paragraphs = re.split(r'\n+', cleaned_response)
     
-    # Format each paragraph
+    
     formatted_paragraphs = [format_paragraph(p) for p in paragraphs]
     
-    # Join paragraphs with double newlines for better readability
+    
     return '\n\n'.join(formatted_paragraphs)
 
 def format_paragraph(paragraph: str) -> str:
-    # Convert Markdown-like bold text to HTML bold
+    
     paragraph = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', paragraph)
     
-    # Convert Markdown-like italic text to HTML italic
+    
     paragraph = re.sub(r'\*(.*?)\*', r'<em>\1</em>', paragraph)
 
-    # Identify and format key phrases
+    
     key_phrases = [
         (r'\b(Note|Important|Tip):', r'<strong>\1:</strong>'),
         (r'\b(e\.g\.|i\.e\.):', r'<em>\1</em>'),
@@ -103,7 +103,7 @@ def format_paragraph(paragraph: str) -> str:
     for pattern, replacement in key_phrases:
         paragraph = re.sub(pattern, replacement, paragraph)
     
-    # Highlight technical terms or important concepts
+    
     paragraph = re.sub(r'\b([A-Z][a-z]+(?:[A-Z][a-z]+)+)\b', r'<code>\1</code>', paragraph)
     
     return f'<p>{paragraph}</p>'
@@ -111,10 +111,10 @@ def format_paragraph(paragraph: str) -> str:
 def structure_response(response: str) -> str:
     formatted_response = format_ai_response(response)
     
-    # Add a decorative separator
+    
     separator = '<hr style="border: 1px solid #ccc; margin: 20px 0;">'
     
-    # Wrap the response in a styled div
+    
     styled_response = f'''
     <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         {formatted_response}
@@ -141,7 +141,7 @@ async def run_ai_flow(case_details, analysis_type):
         else:
             analysis_result = str(result)
         
-        # Clean the AI response before returning
+        
         cleaned_result = clean_ai_response(analysis_result)
         return {"analysis_result": cleaned_result}
         
