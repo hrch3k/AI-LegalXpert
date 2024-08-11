@@ -1,14 +1,39 @@
 # AI-LegalXpert
 
-AI LegalXpert based on [AI JSON](https://aijson.com/) is a sophisticated AI-powered legal assistant designed to assist users by providing comprehensive legal analysis, suggestions, and strategies. The application leverages the latest in natural language processing to analyze legal documents and provide actionable insights.
+**AI LegalXpert** is a sophisticated AI-powered legal assistant designed to assist users by providing comprehensive legal analysis, suggestions, and strategies. Leveraging the latest advancements in natural language processing and forensic image analysis, AI LegalXpert can analyze legal documents, visual evidence, and other case materials to provide actionable insights.
 
 ## Features
 
-AI LegalXpert offers the following features:
+### 1. Document Analysis
+- Upload legal documents in PDF, DOC, DOCX, or TXT formats.
+- Receive a comprehensive analysis of the document’s content, including identification of key legal elements, potential issues, and strategic recommendations.
 
-1. **Document Analysis**: Upload legal documents in PDF, DOC, DOCX, or TXT formats, and receive a comprehensive analysis.
-2. **Legal Strategy Suggestions**: Get recommendations for legal strategies based on the case details.
-3. **Result Export**: Save or export the analysis results for later review.
+### 2. Forensic Image Analysis
+- **AI ForensicXpert Integration:** An advanced AI assistant specialized in forensic image analysis, capable of detecting tampering, assessing image quality, and identifying key forensic evidence.
+- **Detailed Reports:** Provide a thorough analysis of images covering aspects such as:
+  1. **Image Content Description:** Reads and describes the content of images in detail.
+  2. **Case-Relevant Element Identification:** Analyzes images to identify key elements relevant to the case.
+  3. **Evidence Provision:** Extracts and provides evidence from images that can strengthen the case.
+  4. **Inconsistency Highlighting:** Identifies and highlights any inconsistencies or issues present in the images.
+  5. **Legal Argument Support:** Suggests how images can be used effectively in legal arguments.
+  6. **Tampering and Manipulation Detection:** Detects any tampering or manipulation in images.
+  7. **Image Quality and Integrity Analysis:** Analyzes the quality and integrity of images.
+  8. **Forensic Evidence Identification:** Identifies significant forensic evidence within images.
+  9. **Forensic Findings Recommendations:** Offers recommendations or insights based on forensic findings.
+
+### 3. Legal Strategy Suggestions
+- Receive tailored recommendations for legal strategies based on the analysis of documents and forensic evidence.
+- Support for both civil and criminal cases, helping you navigate complex legal scenarios with expert guidance.
+
+### 4. Result Export
+- Save or export analysis results for later review, allowing for easy integration into your case management workflow.
+
+## Use Cases
+- **Legal Professionals:** Enhance case preparation with AI-driven analysis of legal documents and forensic evidence.
+- **Law Enforcement:** Utilize forensic image analysis to support investigations and gather critical evidence.
+- **Corporate Legal Departments:** Streamline document review and ensure compliance with regulatory requirements.
+
+**AI LegalXpert** is designed to be an indispensable tool for legal professionals, combining cutting-edge AI technology with practical, real-world applications in the legal field.
 
 ## Installation / Setup
 
