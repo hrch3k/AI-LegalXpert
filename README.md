@@ -35,6 +35,12 @@
 
 **AI LegalXpert** is designed to be an indispensable tool for legal professionals, combining cutting-edge AI technology with practical, real-world applications in the legal field.
 
+
+## Demo
+
+Check out the [AI LegalXpert Demo](https://0b1e-89-142-161-240.ngrok-free.app/) to see the application in action.
+
+
 ## Installation / Setup
 
 Follow these steps to set up and run AI LegalXpert on your machine:
