@@ -7,6 +7,7 @@
     <title>Legal Xpert</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='legal.jpg') }}">
     <script>
         tailwind.config = {
@@ -16,6 +17,7 @@
                         darkturquoise: '#00CED1',
                         paleturquoise: '#AFEEEE',
                         teal: '#008080',
+                        
                     },
                     fontFamily: {
                         inter: ['Inter', 'sans-serif'],
@@ -27,10 +29,27 @@
 </head>
 
 <body class="font-inter bg-gradient-to-b from-[#00121e] to-[#bef5fa] min-h-screen flex flex-col justify-between">
+    <style>
+        @keyframes gavel-bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateX(-20px);
+            }
+        }
+        .animate-gavel {
+            animation: gavel-bounce 5s infinite ;
+        }
+        img:hover{
+            transform: scale(1.1);
+        }
+    </style>
     <div class="container mx-auto px-6 py-10 flex-grow">
         <header class="text-center mb-16 flex flex-col items-center">
-            <img src="{{ url_for('static', filename='legal.jpg') }}" alt="icon" class="rounded-full w-48 h-48 mb-6 object-contain">
-        
+            <img src="{{ url_for('static', filename='legal.jpg') }}" alt="icon" class="rounded-full w-48 h-48 mb-6 object-contain animate-gavel flex justify-center items-center">
+            <!-- <img src="https://pngimg.com/uploads/gavel/gavel_PNG80.png" alt="Gavel" class="w-48 h-48 animate-gavel flex justify-center items-center object-contain"> -->
+            
             <h1 class="text-6xl font-bold mb-6">
                 
                 <span class="text-darkturquoise">Legal</span>
@@ -41,19 +60,19 @@
 
             <div class="flex flex-row shadow-2xl justify-center">
                 <div>
-                    <img class="w-4rem h-4rem p-3  rounded-2xl" src="https://plus.unsplash.com/premium_photo-1681487769650-a0c3fbaed85a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w0Mzc0NDd8MHwxfHNlYXJjaHw1fHxhbmFseXNpc3xlbnwwfHx8fDE3MjMyNzI0MTV8MA&ixlib=rb-4.0.3&q=85&q=85&fmt=jpg&crop=entropy&cs=tinysrgb&w=450" alt="analysis">
+                    <img class="w-4rem h-4rem p-3  rounded-2xl transition duration-500 ease-in-out transform hover:scale-110" src="https://plus.unsplash.com/premium_photo-1681487769650-a0c3fbaed85a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w0Mzc0NDd8MHwxfHNlYXJjaHw1fHxhbmFseXNpc3xlbnwwfHx8fDE3MjMyNzI0MTV8MA&ixlib=rb-4.0.3&q=85&q=85&fmt=jpg&crop=entropy&cs=tinysrgb&w=450" alt="analysis">
                     <p class="text-white mb-1">Analysis</p>
                 </div>
                 <div>
-                    <img class="w-4rem h-4rem p-3 rounded-2xl" src="https://plus.unsplash.com/premium_photo-1668058723804-d7dcd1ffa4c9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w0Mzc0NDd8MHwxfHNlYXJjaHwxfHxqdWRnZXxlbnwwfHx8fDE3MjMyOTMyMTR8MA&ixlib=rb-4.0.3&q=85&q=85&fmt=jpg&crop=entropy&cs=tinysrgb&w=450" alt="libra">
+                    <img class="w-4rem h-4rem p-3 rounded-2xl transition duration-500 ease-in-out transform hover:scale-110" src="https://plus.unsplash.com/premium_photo-1668058723804-d7dcd1ffa4c9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w0Mzc0NDd8MHwxfHNlYXJjaHwxfHxqdWRnZXxlbnwwfHx8fDE3MjMyOTMyMTR8MA&ixlib=rb-4.0.3&q=85&q=85&fmt=jpg&crop=entropy&cs=tinysrgb&w=450" alt="libra">
                     <p class="text-white mb-1">Judge and Jury insights</p>
                 </div>
                 <div>
-                    <img class="w-4rem h-4rem p-3 rounded-2xl" src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?crop=entropy&cs=srgb&fm=jpg&ixid=M3w0Mzc0NDd8MHwxfHNlYXJjaHwyfHxsYXd8ZW58MHx8fHwxNzIzMzAwMTA0fDA&ixlib=rb-4.0.3&q=85&q=85&fmt=jpg&crop=entropy&cs=tinysrgb&w=450" alt="books">
+                    <img class="w-4rem h-4rem p-3 rounded-2xl transition duration-500 ease-in-out transform hover:scale-110" src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?crop=entropy&cs=srgb&fm=jpg&ixid=M3w0Mzc0NDd8MHwxfHNlYXJjaHwyfHxsYXd8ZW58MHx8fHwxNzIzMzAwMTA0fDA&ixlib=rb-4.0.3&q=85&q=85&fmt=jpg&crop=entropy&cs=tinysrgb&w=450" alt="books">
                     <p class="text-white mb-1">Law</p>
                 </div>
                 <div>
-                    <img class="w-4rem h-4rem p-3 rounded-2xl" src="https://images.unsplash.com/photo-1466046690866-98181611563d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w0Mzc0NDd8MHwxfHNlYXJjaHwxNHx8cmlza3xlbnwwfHx8fDE3MjMyOTMzNjF8MA&ixlib=rb-4.0.3&q=85&q=85&fmt=jpg&crop=entropy&cs=tinysrgb&w=450" alt="analysis">
+                    <img class="w-4rem h-4rem p-3 rounded-2xl transition duration-500 ease-in-out transform hover:scale-110" src="https://images.unsplash.com/photo-1466046690866-98181611563d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w0Mzc0NDd8MHwxfHNlYXJjaHwxNHx8cmlza3xlbnwwfHx8fDE3MjMyOTMzNjF8MA&ixlib=rb-4.0.3&q=85&q=85&fmt=jpg&crop=entropy&cs=tinysrgb&w=450" alt="analysis">
                     <p class="text-white mb-1">Risk management</p>
                 </div>
                 
