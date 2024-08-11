@@ -7,3 +7,6 @@ python-docx==1.1.2
 PyPDF2==3.0.1
 flask-migrate==4.0.7
 aijson-meta==0.1.6
+nest_asyncio==1.6.0
+
+
