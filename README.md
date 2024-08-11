@@ -38,7 +38,7 @@
 
 ## Demo
 
-Check out the [AI LegalXpert Demo](https://0b1e-89-142-161-240.ngrok-free.app/) to see the application in action.
+Check out the [AI LegalXpert Demo](https://0869-89-142-161-240.ngrok-free.app) to see the application in action.
 
 
 ## Installation / Setup
