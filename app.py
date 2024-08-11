@@ -140,9 +140,8 @@ async def run_ai_flow(case_details, analysis_type):
         logger.error(f"Error running AI flow: {str(e)}")
         logger.error(traceback.format_exc())
         return {"analysis_result": f"Error in AI analysis: {str(e)}"}
-
-from weasyprint import HTML
-
+    
+from xhtml2pdf import pisa
 @app.route('/generate_report', methods=['POST'])
 def generate_report():
     report_title = "Case Report"
@@ -150,6 +149,7 @@ def generate_report():
     summary = request.form.get('summary')
     details = request.form.get('details')
 
+    # Render HTML content from template
     html_content = render_template(
         'report_template.html',
         report_title=report_title,
@@ -159,15 +159,23 @@ def generate_report():
         details=details
     )
 
-    pdf = HTML(string=html_content).write_pdf()
+    # Convert HTML to PDF
+    pdf = io.BytesIO()
+    pisa_status = pisa.CreatePDF(io.StringIO(html_content), dest=pdf)
 
+    if pisa_status.err:
+        # Handle error (optional)
+        return "Error generating PDF", 500
+
+    pdf.seek(0)  # Reset file pointer to the beginning
+
+    # Send PDF as attachment
     return send_file(
-        io.BytesIO(pdf),
+        pdf,
         mimetype='application/pdf',
         as_attachment=True,
         download_name=f'{report_title}.pdf'
     )
-
 @app.route('/api/case_metrics')
 def case_metrics_api():
     metrics = calculate_case_metrics()
