@@ -1,4 +1,8 @@
 version: "0.1"
+default_model:
+  model: 'meta.llama3-1-8b-instruct-v1:0'
+
+
 
 flow:
   # Step 1: Perform legal analysis on the provided case details

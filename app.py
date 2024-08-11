@@ -64,25 +64,30 @@ async def run_ai_flow(case_details, analysis_type):
         result = await flow.run()
         logger.info(f"AI flow raw result: {result}")
         
-        # Check if the result is a dictionary and contains the 'analysis_result' key
-        if isinstance(result, dict) and 'analysis_result' in result:
-            analysis_result = result['analysis_result']
-            logger.info(f"Extracted analysis result: {analysis_result}")
-            return analysis_result
+        # Ensure the result is always a dictionary with 'analysis_result' key
+        if isinstance(result, dict):
+            if 'analysis_result' in result:
+                analysis_result = result['analysis_result']
+            else:
+                # If 'analysis_result' is missing, use the entire result as the analysis
+                analysis_result = str(result)
         else:
-            logger.error(f"Unexpected result structure: {result}")
-            return "Error: Unexpected result structure from AI analysis"
+            # If result is not a dictionary, convert it to a string
+            analysis_result = str(result)
+        
+        logger.info(f"Formatted analysis result: {analysis_result}")
+        return {"analysis_result": analysis_result}
     except RuntimeError as e:
+        error_message = "The AI model encountered an issue while processing your request. Please try again with different input or contact support."
         if str(e) == "Failed to render result":
             logger.error("Failed to render result from AI flow. This may be due to an issue with the AI model or the input data.")
-            return "Error: The AI model encountered an issue while processing your request. Please try again with different input or contact support."
         else:
             logger.error(f"Unexpected RuntimeError in AI flow: {str(e)}")
-            return f"An unexpected error occurred: {str(e)}"
+        return {"analysis_result": error_message}
     except Exception as e:
         logger.error(f"Error running AI flow: {str(e)}")
         logger.error(traceback.format_exc())
-        return f"Error in AI analysis: {str(e)}"
+        return {"analysis_result": f"Error in AI analysis: {str(e)}"}
 
 @app.route('/', methods=['GET', 'POST'])
 async def index():
@@ -108,18 +113,23 @@ async def index():
                 return render_template('index.html')
             
             # Run the AI flow asynchronously using the await keyword
-            result = await run_ai_flow(case_details, analysis_type)
+            ai_result = await run_ai_flow(case_details, analysis_type)
             
-            if result and not result.startswith("Error:"):
-                logger.info(f"Analysis result: {result}")
-                recent_cases.appendleft({
-                    'analysis_type': analysis_type,
-                    'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                    'result': result
-                })
-                session['last_result'] = result
+            if 'analysis_result' in ai_result:
+                result = ai_result['analysis_result']
+                if not result.startswith("Error:"):
+                    logger.info(f"Analysis result: {result}")
+                    recent_cases.appendleft({
+                        'analysis_type': analysis_type,
+                        'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        'result': result
+                    })
+                    session['last_result'] = result
+                else:
+                    error = result
+                    logger.warning(f"AI analysis issue: {error}")
             else:
-                error = result if result else "The AI analysis did not produce a valid result. Please try again."
+                error = "The AI analysis did not produce a valid result. Please try again."
                 logger.warning(f"AI analysis issue: {error}")
         except Exception as e:
             error = f'An error occurred during the analysis: {str(e)}'
