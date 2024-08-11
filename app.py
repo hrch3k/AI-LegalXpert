@@ -5,7 +5,7 @@ import traceback
 from bs4 import BeautifulSoup
 from sqlalchemy import or_
 import yaml
-from flask import Flask, render_template, render_template_string, request, flash, redirect, url_for, session, send_file
+from flask import Flask, jsonify, render_template, render_template_string, request, flash, redirect, url_for, session, send_file
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from collections import deque
@@ -55,6 +55,21 @@ def read_file_content(file):
         return '\n'.join([page.extract_text() for page in reader.pages])
     return "Unsupported file format"
 
+def calculate_case_metrics():
+    total_cases = SavedAnalysis.query.count()
+    won_cases = SavedAnalysis.query.filter_by(outcome='won').count()
+    lost_cases = SavedAnalysis.query.filter_by(outcome='lost').count()
+    
+    average_duration = db.session.query(db.func.avg(SavedAnalysis.duration)).scalar()
+    success_rate = (won_cases / total_cases) * 100 if total_cases > 0 else 0
+    
+    return {
+        "total_cases": total_cases,
+        "won_cases": won_cases,
+        "lost_cases": lost_cases,
+        "average_duration": average_duration,
+        "success_rate": success_rate
+    }
 
 
 def clean_ai_response(response: str) -> str:
@@ -158,6 +173,44 @@ async def run_ai_flow(case_details, analysis_type):
         logger.error(f"Error running AI flow: {str(e)}")
         logger.error(traceback.format_exc())
         return {"analysis_result": f"Error in AI analysis: {str(e)}"}
+
+from weasyprint import HTML
+
+@app.route('/generate_report', methods=['POST'])
+def generate_report():
+    report_title = "Case Report"
+    client_name = request.form.get('client_name')
+    summary = request.form.get('summary')
+    details = request.form.get('details')
+
+    html_content = render_template(
+        'report_template.html',
+        report_title=report_title,
+        client_name=client_name,
+        report_date=datetime.now().strftime('%Y-%m-%d'),
+        summary=summary,
+        details=details
+    )
+
+    pdf = HTML(string=html_content).write_pdf()
+
+    return send_file(
+        io.BytesIO(pdf),
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=f'{report_title}.pdf'
+    )
+
+@app.route('/api/case_metrics')
+def case_metrics_api():
+    metrics = calculate_case_metrics()
+    return jsonify(metrics)
+
+@app.route('/dashboard')
+def dashboard():
+    metrics = calculate_case_metrics()
+    return render_template('view_analysis.html', metrics=metrics)
+
 
 
 @app.route('/', methods=['GET', 'POST'])

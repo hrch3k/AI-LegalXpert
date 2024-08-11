@@ -8,9 +8,13 @@ db = SQLAlchemy()
 
 class SavedAnalysis(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    outcome = db.Column(db.String(100))  # e.g., 'won', 'lost', 'settled'
+    duration = db.Column(db.Integer)  # Duration in days
+    success_rate = db.Column(db.Float)  # Success rate as a percentage
+
 
 class SearchForm(FlaskForm):
     query = StringField('Search', validators=[DataRequired()])

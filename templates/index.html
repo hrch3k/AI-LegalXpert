@@ -33,13 +33,25 @@
             -webkit-animation: spinner 1.5s linear infinite;
             animation: spinner 1.5s linear infinite;
         }
+
         @-webkit-keyframes spinner {
-            0% { -webkit-transform: rotate(0deg); }
-            100% { -webkit-transform: rotate(360deg); }
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
         }
+
         @keyframes spinner {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
@@ -148,12 +160,20 @@
                 </ul>
             </div>
             {% endif %}
+            
+            <!-- Added Dashboard Button -->
+            <div class="mt-8 text-center">
+                <a href="{{ url_for('dashboard') }}" class="bg-teal hover:bg-darkturquoise text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out">
+                    Go to Dashboard
+                </a>
+            </div>
         </main>
     </div>
 
     <footer class="bg-[#00121e] text-white py-6 text-center">
         <p>&copy; 2024 LegalXpert. All Rights Reserved.</p>
     </footer>
+
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
