@@ -1,11 +1,12 @@
 from asyncio.log import logger
+import logging
 import os
 import io
 import traceback
 from bs4 import BeautifulSoup
 from sqlalchemy import or_
 import yaml
-from flask import Flask, jsonify, logging, render_template, render_template_string, request, flash, redirect, url_for, session, send_file
+from flask import Flask, jsonify, render_template, render_template_string, request, flash, redirect, url_for, session, send_file
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 from collections import deque
@@ -34,6 +35,9 @@ app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff'}
 db.init_app(app)
 recent_cases = deque(maxlen=5)
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'doc', 'docx'}
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -159,19 +163,12 @@ async def analyze_image(image_file):
         cleaned_result = clean_ai_response(analysis_result)
         return {"analysis_result": cleaned_result}
     
-    except RuntimeError as e:
-        error_message = "The AI model encountered an issue while processing your request. Please try again with different input or contact support."
-        logging.error(f"RuntimeError in AI flow: {str(e)}")
-        return {"analysis_result": error_message}
     except Exception as e:
         logging.error(f"Error running AI flow: {str(e)}")
         logging.error(traceback.format_exc())
         return {"analysis_result": f"Error in AI analysis: {str(e)}"}
 
 def allowed_file(filename):
-    """
-    Check if the file extension is allowed.
-    """
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 @app.route('/analyze_image', methods=['POST'])
@@ -191,21 +188,17 @@ async def analyze_image_route():
         file.save(file_path)
 
         try:
-            with Image.open(file_path) as img:
-                # Perform AI analysis on the image
-                analysis_result = await analyze_image(img)
-                
-                # Clean and format the AI response
-                cleaned_result = clean_ai_response(analysis_result['analysis_result'])
-                formatted_result = structure_response(cleaned_result)
-                
-                return render_template('image_analysis_result.html', result=formatted_result)
+            analysis_result = await analyze_image(file_path)
+            cleaned_result = clean_ai_response(analysis_result['analysis_result'])
+            formatted_result = structure_response(cleaned_result)
+            return render_template('image_analysis_result.html', result=formatted_result)
         except Exception as e:
             flash(f'An error occurred while analyzing the image: {str(e)}')
             return redirect(url_for('index'))
     else:
         flash('Invalid file type. Please upload a valid image file.')
         return redirect(url_for('index'))
+
 
 from xhtml2pdf import pisa
 @app.route('/generate_report', methods=['POST'])
@@ -287,7 +280,6 @@ async def index():
                         'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                         'result': result
                     })
-                    session['last_result'] = result
                 else:
                     error = result
                     logger.warning(f"AI analysis issue: {error}")

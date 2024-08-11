@@ -1,60 +1,11 @@
 version: "0.1"
 default_model:
-  model: 'meta.llama3-1-8b-instruct-v1:0'
+  model: 'anthropic.claude-3-sonnet-20240229-v1:0'
 
 flow:
-  # Step 1: Perform legal analysis on the provided case details (if case details are provided)
-  legal_analysis:
-    when: "{{ case_details }}"
-    action: llm
-    prompt:
-      - role: system
-        text: |
-          You are AI LegalXpert, an advanced AI assistant specialized in legal analysis. 
-          Your primary function is to analyze legal documents, case details, and provide insightful legal advice.
-          Provide comprehensive, accurate, and helpful legal insights based on the information provided.
-          Analyze the content, identify key legal issues, and suggest potential strategies.
-          Maintain professional language and adhere to ethical standards in your responses.
-          Adapt your analysis style based on the requested analysis type.
-
-      - role: user
-        text: |
-          Please analyze the following case details and provide a {{ analysis_type }} analysis:
-
-          Case Details: {{ case_details }}
-
-          {% if analysis_type == 'Case Analysis' %}
-          Include the following in your analysis:
-          1. Detailed summary of the case
-          2. Identification of key legal issues
-          3. Assessment of strengths and weaknesses
-          4. Suggested legal strategies or next steps
-          5. Potential outcomes and their implications
-          {% elif analysis_type == 'Precedent Research' %}
-          Include the following in your analysis:
-          1. Identification of relevant precedents and case laws
-          2. Comparison of current case with precedents
-          3. Discussion of how precedents may influence the case
-          4. Recommendations based on precedent analysis
-          {% elif analysis_type == 'Risk Assessment' %}
-          Include the following in your analysis:
-          1. Identification of potential legal risks
-          2. Evaluation of the severity and likelihood of each risk
-          3. Strategies for mitigating identified risks
-          4. Potential impact on the case outcome
-          {% elif analysis_type == 'Judicial Insights' %}
-          Include the following in your analysis:
-          1. Analysis of relevant judicial opinions
-          2. Insights into how judges might view the case
-          3. Potential biases or preferences of relevant courts
-          4. Recommendations based on judicial trends
-          {% endif %}
-
-  # Step 2: Perform forensic analysis on the uploaded image (if provided)
+  # Step 1: Perform forensic analysis on the uploaded image (if provided)
   forensic_image_analysis:
-    when: "{{ image_file }}"
     action: image_model
-    model: sonnet3
     file:
       var: image_file
     analysis_type: forensic
@@ -68,11 +19,13 @@ flow:
         text: |
           You are AI ForensicXpert, an advanced AI assistant specialized in forensic image analysis. 
           Your primary function is to analyze images for forensic evidence, detect tampering, assess image quality, 
-          and provide detailed forensic insights.
+          and provide detailed forensic insights. Maintain objectivity and adhere to high ethical standards in your analysis.
+
       - role: user
         text: |
           Please perform a forensic analysis on the provided image. 
           Provide a detailed report covering the following aspects:
+
           1. Read the image and describe its content in detail.
           2. Analyze the image to identify key elements relevant to the case.
           3. Provide evidence from the image that can strengthen the case.
@@ -83,9 +36,4 @@ flow:
           8. Identification of any significant forensic evidence within the image.
           9. Recommendations or insights based on the forensic findings.
 
-default_output: |
-  {% if image_file %}
-    {{ forensic_image_analysis.result }}
-  {% else %}
-    {{ legal_analysis.result }}
-  {% endif %}
+default_output: forensic_image_analysis.result
