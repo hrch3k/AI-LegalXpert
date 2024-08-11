@@ -30,17 +30,20 @@ app.secret_key = os.urandom(24)
 migrate = Migrate(app, db)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///legal_xpert.db'
-app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff'}
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'tiff', 'txt', 'pdf', 'doc', 'docx'}
 
 db.init_app(app)
 recent_cases = deque(maxlen=5)
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'doc', 'docx'}
+#ALLOWED_EXTENSIONS = {'txt', 'pdf', 'doc', 'docx'}
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+    is_allowed = ext in app.config['ALLOWED_EXTENSIONS']
+    logger.debug(f"File extension: {ext}, Is allowed: {is_allowed}")
+    return is_allowed
 
 def load_ai_config():
     with open('legal_case_analysis.ai.yaml', 'r') as file:
