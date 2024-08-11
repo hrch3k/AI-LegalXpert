@@ -157,9 +157,9 @@ async def analyze_image(image_file):
         flow = flow.set_vars(image_file=image_file)
         result = await flow.run()
         logging.info(f"AI flow raw result: {result}")
-        
+
         if isinstance(result, dict):
-            analysis_result = result.get('analysis_result', str(result))
+            analysis_result = result.get('forensic_analysis', str(result))
         else:
             analysis_result = str(result)
         
@@ -170,6 +170,7 @@ async def analyze_image(image_file):
         logging.error(f"Error running AI flow: {str(e)}")
         logging.error(traceback.format_exc())
         return {"analysis_result": f"Error in AI analysis: {str(e)}"}
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
