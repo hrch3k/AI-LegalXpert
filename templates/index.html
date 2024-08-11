@@ -121,17 +121,18 @@
                 </div>
                 <div class="flex flex-col space-y-4">
                     <form action="{{ url_for('save_analysis') }}" method="post" class="flex items-center space-x-4">
-                        <input type="text" name="title" placeholder="Title for Saving" class="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out">
+                        <input type="text" name="title" placeholder="Title for Saving" class="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-darkturquoise">
+                        <button type="submit" class="bg-darkturquoise hover:bg-[#00a7b3] text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out">
                             Save Analysis
                         </button>
                     </form>
-                    <a href="{{ url_for('export_result') }}" class="inline-block bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out text-center">
+                    <a href="{{ url_for('export_result') }}" class="inline-block bg-darkturquoise hover:bg-[#00a7b3] text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out text-center">
                         Export Result
                     </a>
                 </div>
             </div>
             {% endif %}
+
             {% if recent_cases %}
             <div class="bg-white rounded-lg shadow-2xl p-8 mt-8">
                 <h2 class="text-xl font-bold text-teal mb-6">Recent Cases</h2>
@@ -173,7 +174,6 @@
     <footer class="bg-[#00121e] text-white py-6 text-center">
         <p>&copy; 2024 LegalXpert. All Rights Reserved.</p>
     </footer>
-
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
