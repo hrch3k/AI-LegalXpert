@@ -153,22 +153,18 @@ async def run_ai_flow(case_details, analysis_type):
     
 async def analyze_image(image_file):
     try:
+        # Your flow setup and execution
         flow = Flow.from_file('image_analysis.ai.yaml')
         flow = flow.set_vars(image_file=image_file)
-        result = await flow.run()
-        logging.info(f"AI flow raw result: {result}")
-
-        if isinstance(result, dict):
-            analysis_result = result.get('forensic_analysis', str(result))
-        else:
-            analysis_result = str(result)
+        result = await flow.run(target_output='forensic_image_analysis.result')
         
-        cleaned_result = clean_ai_response(analysis_result)
-        return {"analysis_result": cleaned_result}
+        if result is None:
+            raise ValueError("No result returned from the AI flow.")
+        
+        return {"analysis_result": result}
     
     except Exception as e:
         logging.error(f"Error running AI flow: {str(e)}")
-        logging.error(traceback.format_exc())
         return {"analysis_result": f"Error in AI analysis: {str(e)}"}
 
 

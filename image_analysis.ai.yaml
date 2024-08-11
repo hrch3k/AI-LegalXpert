@@ -27,3 +27,4 @@ flow:
           9. Recommendations or insights based on the forensic findings.
 
 default_output: forensic_image_analysis.result
+
