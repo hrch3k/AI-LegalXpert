@@ -62,17 +62,20 @@ Here are some examples of how AI LegalXpert works:
 
 ### Screenshot Examples
 
-- **Upload Document:**
+- **App:**
 
-  *(Insert Screenshot)*
+  ![Screenshot of the Application](screenshot1.jpg)
 
-- **Select Analysis Type:**
-
-  *(Insert Screenshot)*
+  
 
 - **View Results:**
 
-  *(Insert Screenshot)*
+  ![Screenshot of the Application](result.jpg)
+
+
+- **image forensycs:**
+
+  ![Screenshot of the Application](imagescrnshoot.jpg)
 
 ## Contributing
 
