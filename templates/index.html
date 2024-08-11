@@ -15,10 +15,12 @@
             theme: {
                 extend: {
                     colors: {
-                        darkturquoise: '#00CED1',
-                        paleturquoise: '#AFEEEE',
-                        teal: '#008080',
-                        lightgray: '#f5f5f5',
+                        'primary': '#3498db',
+                        'primary-dark': '#2980b9',
+                        'secondary': '#e74c3c',
+                        'secondary-dark': '#c0392b',
+                        'tertiary': '#2ecc71',
+                        'tertiary-dark': '#27ae60',
                     },
                     fontFamily: {
                         inter: ['Inter', 'sans-serif'],
@@ -95,128 +97,128 @@
                 </div>
             </div>
             
+ <!-- Form Section -->
+ <form action="{{ url_for('index') }}" method="post" enctype="multipart/form-data" @submit="loading = true" class="bg-white shadow-lg rounded-lg p-8 max-w-3xl mx-auto space-y-8">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-md mb-6" role="alert">
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
 
-            <!-- Form Section -->
-            <form action="{{ url_for('index') }}" method="post" enctype="multipart/form-data" @submit="loading = true" class="bg-white shadow-lg rounded-lg p-8 max-w-3xl mx-auto">
-                {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-md mb-6" role="alert">
-                    {% for message in messages %}
-                    <p>{{ message }}</p>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                {% endwith %}
-
-                <div class="mb-6">
-                    <label for="analysis_type" class="block text-gray-800 text-sm font-medium mb-2">Analysis Type:</label>
-                    <div class="relative">
-                        <select name="analysis_type" id="analysis_type"
-                            class="block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 text-gray-700 pr-10 leading-tight focus:outline-none focus:ring-2 focus:ring-teal-500">
-                            <option value="case_analysis">Case Analysis</option>
-                            <option value="precedent_research">Precedent Research</option>
-                            <option value="risk_assessment">Risk Assessment</option>
-                            <option value="judicial_insights">Judicial Insights</option>
-                        </select>
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                            <i class="fas fa-caret-down text-gray-500"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-6">
-                    <label for="case_details" class="block text-gray-800 text-sm font-medium mb-2">Case Details:</label>
-                    <textarea name="case_details" id="case_details" rows="5"
-                        class="block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
-                        placeholder="Enter case details here..."></textarea>
-                </div>
-
-                <div class="mb-6">
-                    <label for="file" class="block text-gray-800 text-sm font-medium mb-2">Upload File (optional):</label>
-                    <input type="file" name="file" id="file"
-                        class="block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
-                    <p class="text-sm text-gray-500 mt-2">Allowed file types: txt, pdf, doc, docx</p>
-                </div>
-
-                <form action="{{ url_for('analyze_image') }}" method="post" enctype="multipart/form-data" class="bg-white shadow-lg rounded-lg p-6 mb-6 max-w-md mx-auto">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                        <i class="fas fa-image mr-2 text-teal-500"></i> Analyze Image
-                    </h2>
-                    <div class="mb-4">
-                        <label for="image" class="block text-gray-800 text-sm font-medium mb-2">Upload Image</label>
-                        <input type="file" name="image" id="image" accept="image/*" required
-                               class="block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
-                    </div>
-                    <div>
-                        <input type="submit" value="Analyze Image"
-                               class="w-full py-2 px-4 bg-teal-500 text-white font-semibold rounded-lg shadow-md hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500">
-                    </div>
-                </form>
-
-                <div class="flex items-center justify-center mb-6">
-                    <button type="submit" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-                        <i class="fas fa-search mr-2"></i> Analyze
-                    </button>
-                </div>
-            </form>
-
-            {% if result %}
-            <div class="bg-white rounded-lg shadow-lg p-8 mt-8">
-                <h2 class="text-xl font-bold text-gray-800 mb-6">Analysis Result</h2>
-                <div class="bg-gray-100 rounded-lg p-6 mb-6">
-                    <div class="text-gray-800 font-sans" style="white-space: pre-wrap;">{{ result|safe }}</div>
-                </div>
-                <div class="flex flex-col space-y-4">
-                    <form action="{{ url_for('save_analysis') }}" method="post" class="flex items-center space-x-4">
-                        <input type="text" name="title" placeholder="Title for Saving" class="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-                        <button type="submit" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out">
-                            <i class="fas fa-save mr-2"></i> Save Analysis
-                        </button>
-                    </form>
-                    <a href="{{ url_for('export_result') }}" class="inline-block bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out text-center">
-                        <i class="fas fa-download mr-2"></i> Export Result
-                    </a>
-                </div>
+    <div class="mb-6">
+        <label for="analysis_type" class="block text-gray-800 text-sm font-medium mb-2">Analysis Type:</label>
+        <div class="relative">
+            <select name="analysis_type" id="analysis_type"
+                class="block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 text-gray-700 pr-10 leading-tight focus:outline-none focus:ring-2 focus:ring-primary">
+                <option value="case_analysis">Case Analysis</option>
+                <option value="precedent_research">Precedent Research</option>
+                <option value="risk_assessment">Risk Assessment</option>
+                <option value="judicial_insights">Judicial Insights</option>
+            </select>
+            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <i class="fas fa-caret-down text-gray-500"></i>
             </div>
-            {% endif %}
+        </div>
+    </div>
 
-            {% if recent_cases %}
-            <div class="bg-white rounded-lg shadow-2xl p-8 mt-8">
-                <h2 class="text-xl font-bold text-teal-500 mb-6">Recent Cases</h2>
-                <ul class="divide-y divide-gray-300">
-                    {% for case in recent_cases %}
-                    <li class="py-4">
-                        <p class="text-sm font-medium text-gray-900">{{ case.analysis_type }}</p>
-                        <p class="text-sm text-gray-500">{{ case.timestamp }}</p>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
+    <div class="mb-6">
+        <label for="case_details" class="block text-gray-800 text-sm font-medium mb-2">Case Details:</label>
+        <textarea name="case_details" id="case_details" rows="5"
+            class="block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary"
+            placeholder="Enter case details here..."></textarea>
+    </div>
 
-            {% if saved_analyses %}
-            <div class="bg-white rounded-lg shadow-2xl p-8 mt-8">
-                <h2 class="text-xl font-bold text-teal-500 mb-6">Saved Analyses</h2>
-                <ul class="divide-y divide-gray-300">
-                    {% for analysis in saved_analyses %}
-                    <li class="py-4">
-                        <a href="{{ url_for('view_analysis', id=analysis.id) }}"
-                           class="text-sm font-medium text-teal-500 hover:text-teal-600"><i class="fas fa-file-alt mr-2"></i>{{ analysis.title }}</a>
-                        <p class="text-sm text-gray-500">{{ analysis.timestamp }}</p>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
+    <div class="mb-6">
+        <label for="file" class="block text-gray-800 text-sm font-medium mb-2">Upload File (optional):</label>
+        <input type="file" name="file" id="file"
+            class="block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary">
+        <p class="text-sm text-gray-500 mt-2">Allowed file types: txt, pdf, doc, docx</p>
+    </div>
 
-            <!-- Dashboard Button -->
-            <div class="mt-8 text-center">
-                <a href="{{ url_for('dashboard') }}"
-                   class="inline-flex items-center justify-center px-6 py-3 bg-teal-500 text-white font-semibold rounded-lg shadow-md transition-transform transform hover:scale-105 hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-opacity-50">
-                    <i class="fas fa-tachometer-alt mr-3"></i>
-                    <span>Go to Dashboard</span>
-                </a>
-            </div>
+    <div class="flex items-center justify-center mb-6">
+        <button type="submit" class="bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition duration-300 ease-in-out transform hover:scale-105">
+            <i class="fas fa-search mr-2"></i> Analyze
+        </button>
+    </div>
+</form>
+
+<!-- Separate Form for Image Upload -->
+<form action="{{ url_for('analyze_image_route') }}" method="post" enctype="multipart/form-data" class="bg-white shadow-lg rounded-lg p-6 mb-6 max-w-md mx-auto mt-8">
+    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+        <i class="fas fa-image mr-2 text-secondary"></i> Analyze Image
+    </h2>
+    <div class="mb-4">
+        <label for="image" class="block text-gray-800 text-sm font-medium mb-2">Upload Image</label>
+        <input type="file" name="image" id="image" accept="image/*" required
+               class="block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 text-gray-700 focus:outline-none focus:ring-2 focus:ring-secondary">
+    </div>
+    <div>
+        <input type="submit" value="Analyze Image"
+               class="w-full py-2 px-4 bg-secondary text-white font-semibold rounded-lg shadow-md hover:bg-secondary-dark focus:outline-none focus:ring-2 focus:ring-secondary transition duration-300 ease-in-out transform hover:scale-105">
+    </div>
+</form>
+
+{% if result %}
+<div class="bg-white rounded-lg shadow-lg p-8 mt-8">
+    <h2 class="text-xl font-bold text-gray-800 mb-6">Analysis Result</h2>
+    <div class="bg-gray-100 rounded-lg p-6 mb-6">
+        <div class="text-gray-800 font-sans" style="white-space: pre-wrap;">{{ result|safe }}</div>
+    </div>
+    <div class="flex flex-col space-y-4">
+        <form action="{{ url_for('save_analysis') }}" method="post" class="flex items-center space-x-4">
+            <input type="text" name="title" placeholder="Title for Saving" class="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+            <button type="submit" class="bg-tertiary hover:bg-tertiary-dark text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105">
+                <i class="fas fa-save mr-2"></i> Save Analysis
+            </button>
+        </form>
+        <a href="{{ url_for('export_result') }}" class="inline-block bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out text-center transform hover:scale-105">
+            <i class="fas fa-download mr-2"></i> Export Result
+        </a>
+    </div>
+</div>
+{% endif %}
+
+{% if recent_cases %}
+<div class="bg-white rounded-lg shadow-2xl p-8 mt-8">
+    <h2 class="text-xl font-bold text-primary mb-6">Recent Cases</h2>
+    <ul class="divide-y divide-gray-300">
+        {% for case in recent_cases %}
+        <li class="py-4">
+            <p class="text-sm font-medium text-gray-900">{{ case.analysis_type }}</p>
+            <p class="text-sm text-gray-500">{{ case.timestamp }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+{% if saved_analyses %}
+<div class="bg-white rounded-lg shadow-2xl p-8 mt-8">
+    <h2 class="text-xl font-bold text-primary mb-6">Saved Analyses</h2>
+    <ul class="divide-y divide-gray-300">
+        {% for analysis in saved_analyses %}
+        <li class="py-4">
+            <a href="{{ url_for('view_analysis', id=analysis.id) }}"
+               class="text-sm font-medium text-primary hover:text-primary-dark"><i class="fas fa-file-alt mr-2"></i>{{ analysis.title }}</a>
+            <p class="text-sm text-gray-500">{{ analysis.timestamp }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<!-- Dashboard Button -->
+<div class="mt-8 text-center">
+    <a href="{{ url_for('dashboard') }}"
+       class="inline-flex items-center justify-center px-6 py-3 bg-secondary text-white font-semibold rounded-lg shadow-md transition-transform transform hover:scale-105 hover:bg-secondary-dark focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50">
+        <i class="fas fa-tachometer-alt mr-3"></i>
+        <span>Go to Dashboard</span>
+    </a>
+</div>
         </main>
     </div>
 </body>
