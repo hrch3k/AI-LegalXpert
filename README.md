@@ -1,3 +1,5 @@
+This project was made for OxAI Hackathon
+
 # AI-LegalXpert
 
 **AI LegalXpert** is a sophisticated AI-powered legal assistant designed to assist users by providing comprehensive legal analysis, suggestions, and strategies. Leveraging the latest advancements in natural language processing and forensic image analysis, AI LegalXpert can analyze legal documents, visual evidence, and other case materials to provide actionable insights.
