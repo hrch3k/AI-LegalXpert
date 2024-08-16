@@ -1,4 +1,4 @@
-This project was made for OxAI Hackathon
+This project is MVP and was made for OxAI Hackathon so its not fully functional.
 
 # AI-LegalXpert
 
