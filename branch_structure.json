@@ -1,0 +1,18 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "UI-changes",
+    "last_working_version",
+    "main"
+  ],
+  "parent": {
+    "UI-changes": "main",
+    "last_working_version": "main",
+    "main": null
+  },
+  "order": [
+    "main",
+    "UI-changes",
+    "last_working_version"
+  ]
+}
